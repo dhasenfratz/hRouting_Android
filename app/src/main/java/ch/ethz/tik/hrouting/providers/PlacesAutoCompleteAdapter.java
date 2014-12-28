@@ -1,0 +1,200 @@
+package ch.ethz.tik.hrouting.providers;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.Context;
+import android.util.Log;
+import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
+
+import ch.ethz.tik.graphgenerator.elements.Node;
+import ch.ethz.tik.graphgenerator.elements.SearchNode;
+
+import com.google.common.collect.ImmutableList;
+
+public class PlacesAutoCompleteAdapter extends ArrayAdapter<SearchNode>
+        implements Filterable {
+    
+    private static final double BOUNDS_NORTHEAST_LON = 8.610260422;
+    private static final double BOUNDS_SOUTHWEST_LON = 8.464171646;
+    private static final double BOUNDS_NORTHEAST_LAT = 47.43669326;
+    private static final double BOUNDS_SOUTHWEST_LAT = 47.32839174;
+
+    private ArrayList<SearchNode> resultList;
+
+    private static final String LOG_TAG = "PlacesAutoComplete";
+
+    private static final String PLACES_API_BASE = "https://maps.googleapis.com/maps/api/place";
+    private static final String TYPE_AUTOCOMPLETE = "autocomplete";
+    private static final String TYPE_DETAILS = "details";
+    private static final String OUT_JSON = "/json";
+
+    // TODO: Replace with your own Google Places API key.
+    private static final String API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+
+    public PlacesAutoCompleteAdapter(Context context, int resource) {
+        super(context, resource);
+    }
+
+    @Override
+    public int getCount() {
+        return resultList != null ? resultList.size() : 0;
+    }
+
+    @Override
+    public SearchNode getItem(int index) {
+        return resultList.get(index);
+    }
+
+    @Override
+    public Filter getFilter() {
+        Filter filter = new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                FilterResults filterResults = new FilterResults();
+                if (constraint != null) {
+                    // Retrieve the auto-complete results.
+                    resultList = autocomplete(constraint.toString());
+
+                    // Assign the data to the FilterResults
+                    filterResults.values = resultList;
+                    filterResults.count = resultList.size();
+                }
+                return filterResults;
+            }
+
+            @Override
+            protected void publishResults(CharSequence constraint,
+                                          FilterResults results) {
+                if (results != null && results.count > 0) {
+                    notifyDataSetChanged();
+                } else {
+                    notifyDataSetInvalidated();
+                }
+            }
+        };
+        return filter;
+    }
+
+    private ArrayList<SearchNode> autocomplete(String input) {
+        ArrayList<SearchNode> resultList = null;
+        String encodedInput = getEncodedInput(input);
+        List<String> parameters = new ImmutableList.Builder<String>()
+                .add("components=country:ch").add("input=" + encodedInput)
+                .build();
+
+        StringBuilder jsonResults = getJsonResults(TYPE_AUTOCOMPLETE, parameters);
+
+        try {
+            // Create a JSON object hierarchy from the results
+            JSONObject jsonObj = new JSONObject(jsonResults.toString());
+            JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
+            // Extract the Place descriptions from the results
+            resultList = new ArrayList<SearchNode>(predsJsonArray.length());
+            for (int i = 0; i < predsJsonArray.length(); i++) {
+                String placeId = predsJsonArray.getJSONObject(i).getString("place_id");
+
+                SearchNode result = getPlaceDetails(placeId);
+                if (result != null && isInBoundaries(result)) {
+                    resultList.add(result);
+                }
+            }
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Cannot process JSON results", e);
+        }
+        return resultList;
+    }
+
+    private boolean isInBoundaries(Node node) {
+        double lat = node.getLatitude();
+        double lng = node.getLongitude();
+        return lat >= BOUNDS_SOUTHWEST_LAT && lng <= BOUNDS_NORTHEAST_LAT && lng >= BOUNDS_SOUTHWEST_LON && lng <= BOUNDS_NORTHEAST_LON;
+    }
+
+    private SearchNode getPlaceDetails(String placeId) {
+        List<String> parameters = new ImmutableList.Builder<String>().add(
+                "placeid=" + placeId).build();
+        StringBuilder jsonResults = getJsonResults(TYPE_DETAILS, parameters);
+
+        // Create a JSON object hierarchy from the results
+        try {
+            JSONObject jsonResult = new JSONObject(jsonResults.toString())
+                    .getJSONObject("result");
+            String name = jsonResult.getString("name");
+
+            JSONObject jsonLocation = jsonResult.getJSONObject("geometry")
+                    .getJSONObject("location");
+            double latitude = jsonLocation.getDouble("lat");
+            double longitude = jsonLocation.getDouble("lng");
+            return new SearchNode(name, latitude, longitude);
+        } catch (JSONException e) {
+            Log.e(LOG_TAG, "Cannot process JSON results", e);
+        }
+        return null;
+    }
+
+    private String getEncodedInput(String input) {
+        String encodedInput = null;
+        try {
+            encodedInput = URLEncoder.encode(input, "utf-8");
+        } catch (UnsupportedEncodingException e1) {
+            Log.e(LOG_TAG, "Error encoding input", e1);
+            e1.printStackTrace();
+        }
+        return encodedInput;
+    }
+
+    private StringBuilder getJsonResults(String requestType,
+                                         List<String> parameters) {
+        StringBuilder jsonResults = new StringBuilder();
+        HttpURLConnection connection = null;
+        String query = buildQuery(requestType, parameters);
+        try {
+            URL url = new URL(query);
+            connection = (HttpURLConnection) url.openConnection();
+            InputStreamReader in = new InputStreamReader(
+                    connection.getInputStream());
+
+            // Load the results into a StringBuilder
+            int read;
+            char[] buff = new char[1024];
+            while ((read = in.read(buff)) != -1) {
+                jsonResults.append(buff, 0, read);
+            }
+        } catch (MalformedURLException e) {
+            Log.e(LOG_TAG, "Error processing Places API URL", e);
+            e.printStackTrace();
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Error connecting to Places API", e);
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+        return jsonResults;
+    }
+
+    private String buildQuery(String requestType, List<String> parameters) {
+        StringBuilder query = new StringBuilder(PLACES_API_BASE + "/"
+                + requestType + OUT_JSON).append("?key=" + API_KEY);
+        for (String parameter : parameters) {
+            query.append("&" + parameter);
+        }
+        query.append("&language=de");
+        return query.toString();
+    }
+}
