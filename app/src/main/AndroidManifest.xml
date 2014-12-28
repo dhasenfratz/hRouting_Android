@@ -50,6 +50,11 @@
             android:label="@string/title_activity_settings" >
         </activity>
 
+        <activity
+            android:name="ch.ethz.tik.hrouting.AboutActivity"
+            android:label="@string/title_activity_about" >
+        </activity>
+
     </application>
 
 </manifest>
