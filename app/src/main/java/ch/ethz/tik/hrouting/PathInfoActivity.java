@@ -80,7 +80,7 @@ public class PathInfoActivity extends ActionBarActivity {
                 .append("km long. ")
                 .append("The health-optimal path (green) has ")
                 .append(df.format(healthGain))
-                .append("% less air pollution exposure but is ")
+                .append("% less air pollution exposure and is ")
                 .append(route.getHOptPathScores()[Constants.INDEX_DISTANCE]
                         - route.getShortestPathScores()[Constants.INDEX_DISTANCE])
                 .append("m longer.");

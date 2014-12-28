@@ -2,6 +2,7 @@ package ch.ethz.tik.hrouting;
 
 import android.app.AlertDialog;
 import android.content.res.AssetManager;
+import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -96,16 +97,15 @@ public class MainActivity extends ActionBarActivity {
             alert.show();
         }
 
+        // Set background image.
+        getWindow().setBackgroundDrawableResource(R.drawable.bg_img);
+
         initGraph();
         if (savedInstanceState != null) {
             restoreState(savedInstanceState);
         }
         initHistory();
         initInputFields();
-
-        //final ActionBar actionBar = getSupportActionBar();
-        //actionBar.setDisplayShowHomeEnabled (true);
-        //actionBar.setIcon(R.drawable.ic_launcher);
     }
 
     private void initGraph() {

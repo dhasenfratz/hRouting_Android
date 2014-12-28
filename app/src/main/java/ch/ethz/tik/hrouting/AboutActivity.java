@@ -29,12 +29,15 @@ public class AboutActivity extends ActionBarActivity {
                 "ZÜRICH.\n" +
                 "\n" +
                 "Webpage: http://www.opensense.ethz.ch\n" +
-                "Developer: I. de Concini, D. Hasenfratz\n" +
+                "Developers: I. de Concini, D. Hasenfratz\n" +
                 "Contact: hasenfratz@tik.ee.ethz.ch\n" +
                 "\n" +
                 "Background image: M. Richi, flickr.com");
 
         ImageView imageView = (ImageView)findViewById(R.id.image_view);
         imageView.setImageResource(R.drawable.os_eth_logo);
+
+        // Set background image.
+        getWindow().setBackgroundDrawableResource(R.drawable.bg_img);
     }
 }

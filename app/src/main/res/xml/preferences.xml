@@ -1,16 +1,18 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory android:title="History" >
-        <Preference
-            android:key="delete_history"
-            android:title="Clear history"
-            android:summary="Clears all entries in the history list" />
 
         <ch.ethz.tik.hrouting.NumberPickerPreference
             android:defaultValue="20"
             android:key="size_history"
             android:title="History size"
             android:summary="Set number of entries stored in the history" />
+
+        <Preference
+            android:key="delete_history"
+            android:title="Clear history"
+            android:summary="Clears all entries in the history list" />
+
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Pollution Data" >
