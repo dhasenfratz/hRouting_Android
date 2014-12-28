@@ -45,10 +45,10 @@
                 android:value="ch.ethz.tik.hrouting.MainActivity" />
         </activity>
 
-        <!--<activity
-            android:name=".SettingsActivity"
+        <activity
+            android:name="ch.ethz.tik.hrouting.SettingsActivity"
             android:label="@string/title_activity_settings" >
-        </activity>-->
+        </activity>
 
     </application>
 

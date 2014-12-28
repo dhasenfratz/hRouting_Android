@@ -42,7 +42,6 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<SearchNode>
     private static final String TYPE_DETAILS = "details";
     private static final String OUT_JSON = "/json";
 
-    // TODO: Replace with your own Google Places API key.
     private static final String API_KEY = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
     public PlacesAutoCompleteAdapter(Context context, int resource) {

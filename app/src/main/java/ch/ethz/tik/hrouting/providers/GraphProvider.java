@@ -21,9 +21,14 @@ public class GraphProvider {
     public static final String GRAPH_FILE_NAME = "graph.ser";
 
     private static Graph graph = null;
+    private static boolean startedInit = false;
 
     public static boolean isInitialized() {
         return graph != null;
+    }
+
+    public static boolean startedInitialization() {
+        return startedInit;
     }
 
     public static void init(Graph newGraph) {
@@ -35,6 +40,7 @@ public class GraphProvider {
     }
 
     public static Graph loadGraphFromAssets(Context context) {
+        startedInit = true;
         Stopwatch stopwatch = Stopwatch.createStarted();
         graph = GraphSerializerUtil
                 .deSerialize(getBufferedInputStream(context));

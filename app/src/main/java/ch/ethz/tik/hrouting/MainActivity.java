@@ -75,13 +75,15 @@ public class MainActivity extends ActionBarActivity {
         route = new Route.Builder(null,null).build();
 
         context = getApplicationContext();
+        Log.i(TAG, "Current hist size setting: " +
+                PreferenceManager.getDefaultSharedPreferences(context).getInt("size_history", 20));
 
         // If started first time say hello to the user
         firstTime = PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean("first_time", true);
         if (firstTime) {
             PreferenceManager.getDefaultSharedPreferences(context).edit().
-                    putBoolean("first_time", false).commit();
+                    putBoolean("first_time", false).apply();
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Welcome")
                     .setMessage("Enter origin and destination to compute " +
@@ -109,7 +111,7 @@ public class MainActivity extends ActionBarActivity {
     private void initGraph() {
         // If serialized graph is not loaded in memory, load it in a background
         // task.
-        if (!GraphProvider.isInitialized()) {
+        if (!GraphProvider.startedInitialization()) {
             new LoadGraphTask().execute(context);
         }
     }

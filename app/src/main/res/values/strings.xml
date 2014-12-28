@@ -7,5 +7,6 @@
     <string name="from">From...</string>
     <string name="to">To...</string>
     <string name="title_activity_path_info">...</string>
+    <string name="title_activity_settings">Settings</string>
 
 </resources>
