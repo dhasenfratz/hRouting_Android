@@ -34,7 +34,6 @@ public final class HistoryDBContract {
                                            Route route, Context context) {
 
             dbHelper.removeDuplicate(route.getFrom().getName(), route.getTo().getName());
-            dbHelper.removeDuplicate(route.getTo().getName(), route.getFrom().getName());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
             long historySize = dbHelper.getNrOfElements();
@@ -51,28 +50,34 @@ public final class HistoryDBContract {
             db.insert(TABLE_NAME, null, values);
         }
 
-        public static byte[] serialize(Route route) {
+        private static byte[] serialize(Route route) {
                 ByteArrayOutputStream b = new ByteArrayOutputStream();
             try {
                 ObjectOutputStream o = new ObjectOutputStream(b);
                 o.writeObject(route);
+                o.flush();
+                o.close();
+                b.close();
             } catch (IOException e) {
                 e.printStackTrace();
+                return null;
             }
             return b.toByteArray();
         }
 
         public static Route deserialize(byte[] bytes) {
-            Route route = null;
+            Route route;
             try {
                 ByteArrayInputStream b = new ByteArrayInputStream(bytes);
                 ObjectInputStream o = new ObjectInputStream(b);
                 route = (Route)o.readObject();
+                o.close();
+                b.close();
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+                return null;
             }
             return route;
         }
     }
-
 }

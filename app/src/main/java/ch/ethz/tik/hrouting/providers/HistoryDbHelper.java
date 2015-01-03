@@ -59,9 +59,11 @@ public class HistoryDbHelper extends SQLiteOpenHelper {
     }
 
     public void removeDuplicate(String from, String to) {
-        String where = HistoryEntry.COLUMN_FROM_NAME + "=?" + " and "
-                + HistoryEntry.COLUMN_TO_NAME + "=?";
-        String[] whereArgs = { from, to };
+        String where = "(" + HistoryEntry.COLUMN_FROM_NAME + "=?" + " and "
+                + HistoryEntry.COLUMN_TO_NAME + "=?) or ("
+                + HistoryEntry.COLUMN_FROM_NAME + "=?" + " and "
+                + HistoryEntry.COLUMN_TO_NAME + "=?)";
+        String[] whereArgs = { from, to, to, from };
         getReadableDatabase().delete(HistoryEntry.TABLE_NAME, where, whereArgs);
     }
 
@@ -77,5 +79,4 @@ public class HistoryDbHelper extends SQLiteOpenHelper {
                 + HistoryEntry.TABLE_NAME + ")";
         getReadableDatabase().delete(HistoryEntry.TABLE_NAME, where, null);
     }
-
 }

@@ -2,7 +2,7 @@ package ch.ethz.tik.hrouting;
 
 import android.app.AlertDialog;
 import android.content.res.AssetManager;
-import android.graphics.drawable.Drawable;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -72,6 +72,15 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate called");
         setContentView(R.layout.activity_main);
+
+        // Activate StrictMode
+        /*StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .detectDiskReads()
+                .detectDiskWrites()
+                .detectNetwork()
+                .penaltyLog()
+                .penaltyDeath()
+                .build());*/
 
         route = new Route.Builder(null,null).build();
 
@@ -354,11 +363,9 @@ public class MainActivity extends ActionBarActivity {
             }
         }
 
-
         final ListView historyView = (ListView) findViewById(R.id.history);
         Cursor cursor = dbHelper.getHistory();
-        // TODO: Change to CursorLoader and check how it is used correctly.
-        // http://www.androiddesignpatterns.com/2012/07/loaders-and-loadermanager-background.html
+        // TODO: startManagingCursor is deprecated.
         startManagingCursor(cursor);
         CustomCursorAdapter cursorAdapter = new CustomCursorAdapter(this,
                 cursor, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
@@ -367,15 +374,19 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
+                // Disable input while loading route.
+                inputFrom.setEnabled(false);
+                inputTo.setEnabled(false);
+
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 route = HistoryEntry.deserialize(
                         cursor.getBlob(cursor.getColumnIndex(HistoryEntry.COLUMN_ROUTE)));
                 switchToMap();
-                HistoryEntry.addHistoryEntry(dbHelper, route, MainActivity.this);
-                resetInstanceState();
+
+                // Use background thread to add entry to DB.
+                new AddEntryToDbTask().execute();
             }
         });
-
     }
 
     /**
@@ -501,13 +512,37 @@ public class MainActivity extends ActionBarActivity {
             super.onPostExecute(result);
             switchToMap();
             requestComputation = false;
-            HistoryEntry.addHistoryEntry(dbHelper, route, MainActivity.this);
-            resetInstanceState();
-            findViewById(R.id.progress_load_graph).setVisibility(View.GONE);
-            // Enable input
-            inputFrom.setEnabled(true);
-            inputTo.setEnabled(true);
+            // Use background thread to add entry to DB.
+            new AddEntryToDbTask().execute();
+
         }
 
+    }
+
+    /**
+     * Background task to add entry to database.
+     */
+    private class AddEntryToDbTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            findViewById(R.id.progress_load_graph).setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            HistoryEntry.addHistoryEntry(dbHelper, route, MainActivity.this);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            resetInstanceState();
+            inputFrom.setEnabled(true);
+            inputTo.setEnabled(true);
+            findViewById(R.id.progress_load_graph).setVisibility(View.GONE);
+        }
     }
 }

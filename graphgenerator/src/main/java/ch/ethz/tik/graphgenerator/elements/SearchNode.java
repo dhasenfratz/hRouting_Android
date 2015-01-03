@@ -37,14 +37,14 @@ public class SearchNode extends Node implements Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         super.writeExternal(out);
-        out.writeChars(name);
+        out.writeUTF(name);
     }
 
     @Override
     public void readExternal(ObjectInput in) throws IOException,
             ClassNotFoundException {
         super.readExternal(in);
-        this.name = in.readLine();
+        this.name = in.readUTF();
     }
 
 }
