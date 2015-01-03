@@ -16,7 +16,7 @@ Perfect for pedestrians, cyclists, and urban dwellers.
 
 Repository Layout
 ------------
-* `/hRouting_Android/AppStorePics` Images used in the app store for iPhone 4, iPhone 5/5s, iPhone 6, iPhone 6p, and iPad Retina
+* `/hRouting_Android/AppStorePics` Images used in the Google Play Store
 
 * `/hRouting_Android/app` Implementation of the Android application
 
