@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +29,7 @@ public class SettingsFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
 
-        Preference delHistPref = (Preference) findPreference("delete_history");
+        Preference delHistPref = findPreference("delete_history");
         delHistPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference arg0) {
@@ -37,7 +38,7 @@ public class SettingsFragment extends PreferenceFragment {
             }
         });
 
-        Preference updateDataPref = (Preference) findPreference("fetch_polldata");
+        Preference updateDataPref = findPreference("fetch_polldata");
         updateDataPref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference arg0) {
@@ -48,7 +49,7 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         view.setBackground(getResources().getDrawable(R.drawable.bg_img));
 
