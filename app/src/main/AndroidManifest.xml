@@ -47,6 +47,7 @@
 
         <activity
             android:name="ch.ethz.tik.hrouting.SettingsActivity"
+            android:theme="@style/PreferencesTheme"
             android:label="@string/title_activity_settings" >
         </activity>
 
