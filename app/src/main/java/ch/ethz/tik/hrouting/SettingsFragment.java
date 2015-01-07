@@ -2,6 +2,7 @@ package ch.ethz.tik.hrouting;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -51,25 +52,24 @@ public class SettingsFragment extends PreferenceFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        view.setBackground(getResources().getDrawable(R.drawable.bg_img));
-
+        if (view != null)
+            view.setBackgroundColor(Color.parseColor("#BEFFFFFF"));
         return view;
     }
 
-    void deleteHistory() {
-        alertDialog = new AlertDialog.Builder(getActivity())
-                .setTitle("Clear History")
-                .setMessage("Remove all entries from the history table?")
-                .setPositiveButton("Ok", dialogClickListener)
-                .setNegativeButton("Cancel", dialogClickListener).show();
+    private void deleteHistory() {
+        alertDialog = createRemEntriesDialog();
+        alertDialog.show();
     }
 
-    DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+    private DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
             switch (which) {
                 case DialogInterface.BUTTON_POSITIVE:
                     new HistoryDbHelper(getActivity()).deleteHistory();
+                    Toast.makeText(getActivity(), "History cleared",
+                            Toast.LENGTH_SHORT).show();
                     break;
 
                 case DialogInterface.BUTTON_NEGATIVE:
@@ -80,9 +80,9 @@ public class SettingsFragment extends PreferenceFragment {
         }
     };
 
-    void updateData() {
+    private void updateData() {
         // The data can not be updated at the moment.
-        Toast.makeText(getActivity(), "Pollution data is up to date.",
+        Toast.makeText(getActivity(), "Pollution data is up to date",
                 Toast.LENGTH_SHORT).show();
     }
 
@@ -98,13 +98,17 @@ public class SettingsFragment extends PreferenceFragment {
     public void onResume() {
         super.onResume();
         if(alertDialog != null) {
-            alertDialog = new AlertDialog.Builder(getActivity())
-                    .setTitle("Clear History")
-                    .setMessage("Remove all entries from the history table?")
-                    .setPositiveButton("Ok", dialogClickListener)
-                    .setNegativeButton("Cancel", dialogClickListener).show();
+            alertDialog = createRemEntriesDialog();
+            alertDialog.show();
         }
     }
 
-    //Preference maxSize = (Preference) findPreference("size_history");
+    private AlertDialog createRemEntriesDialog() {
+        alertDialog = new AlertDialog.Builder(getActivity())
+                .setTitle("Clear History")
+                .setMessage("Remove all entries from the history table?")
+                .setPositiveButton("Ok", dialogClickListener)
+                .setNegativeButton("Cancel", dialogClickListener).create();
+        return alertDialog;
+    }
 }

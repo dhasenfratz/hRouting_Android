@@ -6,7 +6,10 @@
             android:defaultValue="20"
             android:key="size_history"
             android:title="History size"
-            android:summary="Set number of entries stored in the history" />
+            android:summary="Set maximum number of history entries"
+            android:dialogMessage="Set maximum number of history entries"
+            android:negativeButtonText="Cancel"
+            android:positiveButtonText="Set" />
 
         <Preference
             android:key="delete_history"

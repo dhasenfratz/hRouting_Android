@@ -6,7 +6,7 @@
     </style>
 
     <style name="PreferencesTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:background">#BEFFFFFF</item>
+        <item name="android:background">@android:color/transparent</item>
     </style>
 
 </resources>

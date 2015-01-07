@@ -12,6 +12,9 @@ public class SettingsActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Set background image.
+        getWindow().setBackgroundDrawableResource(R.drawable.bg_img);
+
         if (savedInstanceState == null) {
             // Display the setting fragment as the main content.
             getFragmentManager().beginTransaction()

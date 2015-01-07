@@ -3,12 +3,16 @@ package ch.ethz.tik.hrouting;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
+
+import ch.ethz.tik.hrouting.providers.HistoryDbHelper;
+import ch.ethz.tik.hrouting.util.HistoryDBContract.HistoryEntry;
 
 /**
  * A {@link android.preference.Preference} that displays a number picker as a
@@ -24,11 +28,6 @@ public class NumberPickerPreference extends DialogPreference {
 
     public NumberPickerPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
-    }
-
-    public NumberPickerPreference(Context context, AttributeSet attrs,
-                                  int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
     }
 
     @Override
@@ -48,7 +47,7 @@ public class NumberPickerPreference extends DialogPreference {
     }
 
     @Override
-    protected void onBindDialogView(View view) {
+    protected void onBindDialogView(@NonNull View view) {
         super.onBindDialogView(view);
         picker.setMinValue(MIN_VALUE);
         picker.setMaxValue(MAX_VALUE);
@@ -59,6 +58,8 @@ public class NumberPickerPreference extends DialogPreference {
     protected void onDialogClosed(boolean positiveResult) {
         if (positiveResult) {
             setValue(picker.getValue());
+            HistoryDbHelper dbHelper = new HistoryDbHelper(getContext());
+            HistoryEntry.checkHistorySize(dbHelper, getContext());
         }
     }
 

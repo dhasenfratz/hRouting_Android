@@ -2,7 +2,6 @@ package ch.ethz.tik.hrouting;
 
 import android.app.AlertDialog;
 import android.content.res.AssetManager;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -73,20 +72,8 @@ public class MainActivity extends ActionBarActivity {
         Log.i(TAG, "onCreate called");
         setContentView(R.layout.activity_main);
 
-        // Activate StrictMode
-        /*StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                .detectDiskReads()
-                .detectDiskWrites()
-                .detectNetwork()
-                .penaltyLog()
-                .penaltyDeath()
-                .build());*/
-
         route = new Route.Builder(null,null).build();
-
         context = getApplicationContext();
-        Log.i(TAG, "Current hist size setting: " +
-                PreferenceManager.getDefaultSharedPreferences(context).getInt("size_history", 20));
 
         // If started first time say hello to the user
         firstTime = PreferenceManager.getDefaultSharedPreferences(context)

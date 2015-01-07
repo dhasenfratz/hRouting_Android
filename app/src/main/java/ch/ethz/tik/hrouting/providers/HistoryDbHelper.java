@@ -14,6 +14,7 @@ public class HistoryDbHelper extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "PathHistory.db";
 
     private static final String TEXT_TYPE = " TEXT";
+    private static final String INT_TYPE = " INTEGER";
     private static final String BLOB_TYPE = " BLOB";
     private static final String COMMA_SEP = ",";
     private static final String SQL_CREATE_ENTRIES = "CREATE TABLE "
@@ -22,7 +23,7 @@ public class HistoryDbHelper extends SQLiteOpenHelper {
             + HistoryEntry.COLUMN_FROM_NAME + TEXT_TYPE + COMMA_SEP
             + HistoryEntry.COLUMN_TO_NAME + TEXT_TYPE + COMMA_SEP
             + HistoryEntry.COLUMN_ROUTE + BLOB_TYPE + COMMA_SEP
-            + HistoryEntry.COLUMN_DATE + " DATETIME DEFAULT CURRENT_TIMESTAMP"
+            + HistoryEntry.COLUMN_DATE + INT_TYPE
             + " )";
 
     private static final String SQL_DELETE_HISTORY = "DELETE FROM "
@@ -67,10 +68,10 @@ public class HistoryDbHelper extends SQLiteOpenHelper {
         getReadableDatabase().delete(HistoryEntry.TABLE_NAME, where, whereArgs);
     }
 
-    public long getNrOfElements() {
+    public int getNrOfElements() {
         String sql = "SELECT COUNT(*) FROM " + HistoryEntry.TABLE_NAME;
         SQLiteStatement statement = getReadableDatabase().compileStatement(sql);
-        return statement.simpleQueryForLong();
+        return (int)statement.simpleQueryForLong();
     }
 
     public void removeOldest() {

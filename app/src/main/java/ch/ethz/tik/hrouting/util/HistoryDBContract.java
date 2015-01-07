@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Calendar;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -28,26 +29,31 @@ public final class HistoryDBContract {
         public static final String COLUMN_FROM_NAME = "fromName";
         public static final String COLUMN_TO_NAME = "toName";
         public static final String COLUMN_ROUTE = "route";
-        public static final String COLUMN_DATE = "last_modified";
+        public static final String COLUMN_DATE = "lastModified";
 
         public static void addHistoryEntry(HistoryDbHelper dbHelper,
                                            Route route, Context context) {
-
             dbHelper.removeDuplicate(route.getFrom().getName(), route.getTo().getName());
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-
-            long historySize = dbHelper.getNrOfElements();
-            int max = PreferenceManager.getDefaultSharedPreferences(context)
-                    .getInt("size_history", 20);
-            for (int i = 0; i < historySize-max; ++i) {
-                dbHelper.removeOldest();
-            }
 
             ContentValues values = new ContentValues();
             values.put(COLUMN_FROM_NAME, route.getFrom().getName());
             values.put(COLUMN_TO_NAME, route.getTo().getName());
             values.put(COLUMN_ROUTE,serialize(route));
+            values.put(COLUMN_DATE, Calendar.getInstance().getTime().getTime());
             db.insert(TABLE_NAME, null, values);
+
+            checkHistorySize(dbHelper, context);
+
+        }
+
+        public static void checkHistorySize(HistoryDbHelper dbHelper, Context context) {
+            int maxSize = PreferenceManager.getDefaultSharedPreferences(context)
+                    .getInt("size_history", 20);
+            int currSize = dbHelper.getNrOfElements();
+            for (int i = 0; i < currSize-maxSize; ++i) {
+                dbHelper.removeOldest();
+            }
         }
 
         private static byte[] serialize(Route route) {
