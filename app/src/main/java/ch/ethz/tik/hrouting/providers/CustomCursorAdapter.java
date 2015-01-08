@@ -42,6 +42,4 @@ public class CustomCursorAdapter extends CursorAdapter {
         TextView dateView = (TextView) view.findViewById(R.id.entry_date);
         dateView.setText(date);
     }
-
-
 }

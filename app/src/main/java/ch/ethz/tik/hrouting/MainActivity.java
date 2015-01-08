@@ -69,10 +69,15 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "onCreate called");
+        Log.i(TAG, "onCreate");
         setContentView(R.layout.activity_main);
 
-        route = new Route.Builder(null,null).build();
+        if (savedInstanceState != null) {
+            restoreState(savedInstanceState);
+        } else {
+            route = new Route.Builder(null, null).build();
+        }
+
         context = getApplicationContext();
 
         // If started first time say hello to the user
@@ -97,11 +102,39 @@ public class MainActivity extends ActionBarActivity {
         getWindow().setBackgroundDrawableResource(R.drawable.bg_img);
 
         initGraph();
-        if (savedInstanceState != null) {
-            restoreState(savedInstanceState);
-        }
         initHistory();
         initInputFields();
+    }
+
+    @Override
+    protected void onPause() {
+        Log.i(TAG, "onPause");
+        super.onPause();
+        if (inputFrom.hasFocus() || inputTo.hasFocus()) {
+            showKeyboard(false);
+            inputFrom.clearFocus();
+            inputTo.clearFocus();
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(TAG, "onDestroy");
+        super.onDestroy();
+        dbHelper.close();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putSerializable(Constants.ROUTE, route);
+        super.onSaveInstanceState(outState);
+    }
+
+    @SuppressWarnings("unchecked")
+    // Warnings because of *safe* cast to generic type
+    private void restoreState(Bundle savedInstanceState) {
+        Log.i(TAG, "Restore app state");
+        route = (Route)savedInstanceState.get(Constants.ROUTE);
     }
 
     private void initGraph() {
@@ -110,13 +143,6 @@ public class MainActivity extends ActionBarActivity {
         if (!GraphProvider.startedInitialization()) {
             new LoadGraphTask().execute(context);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    // Warnings because of *safe* cast to generic type
-    private void restoreState(Bundle savedInstanceState) {
-        Log.i(TAG, "Restore app state");
-        route = (Route)savedInstanceState.get(Constants.ROUTE);
     }
 
     private void initInputFields() {
@@ -136,10 +162,12 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                route.setFrom((SearchNode)parent.getItemAtPosition(position));
+                route.setFrom((SearchNode) parent.getItemAtPosition(position));
                 inputFrom.setError(null);
-                inputTo.requestFocus();
-                computePaths();
+                if (!computePaths())
+                    inputTo.requestFocus();
+                else
+                    inputFrom.clearFocus();
             }
         });
 
@@ -172,9 +200,10 @@ public class MainActivity extends ActionBarActivity {
                                     int position, long id) {
                 route.setTo((SearchNode)parent.getItemAtPosition(position));
                 inputTo.setError(null);
-                inputTo.clearFocus();
-                computePaths();
-
+                if (!computePaths())
+                    inputFrom.requestFocus();
+                else
+                    inputTo.clearFocus();
             }
         });
 
@@ -236,7 +265,8 @@ public class MainActivity extends ActionBarActivity {
                 @Override
                 public void onTextChanged(CharSequence s, int start,
                                           int before, int count) {
-                    route.setFrom(null);
+                    if (before != 0)
+                        route.setFrom(null);
                 }
 
                 @Override
@@ -264,7 +294,9 @@ public class MainActivity extends ActionBarActivity {
                 @Override
                 public void onTextChanged(CharSequence s, int start,
                                           int before, int count) {
-                    route.setTo(null);
+                    if (before != 0) {
+                        route.setTo(null);
+                    }
                 }
 
                 @Override
@@ -343,17 +375,15 @@ public class MainActivity extends ActionBarActivity {
             List <Route> routeList = loadExampleRoutes();
 
             for (int i = 0; i < routeList.size(); i++) {
-                Route route = routeList.get(i);
+                Route r = routeList.get(i);
                 HistoryEntry.addHistoryEntry(dbHelper,
-                        route,
+                        r,
                         MainActivity.this);
             }
         }
 
         final ListView historyView = (ListView) findViewById(R.id.history);
         Cursor cursor = dbHelper.getHistory();
-        // TODO: startManagingCursor is deprecated.
-        startManagingCursor(cursor);
         CustomCursorAdapter cursorAdapter = new CustomCursorAdapter(this,
                 cursor, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         historyView.setAdapter(cursorAdapter);
@@ -386,29 +416,28 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void resetInstanceState() {
-        inputFrom.setText("");
+        inputFrom.getText().clear();
         inputFrom.setError(null);
-        inputTo.setText("");
+        inputTo.getText().clear();
         inputTo.setError(null);
         route.reset();
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        Log.i(TAG, "Store app state");
-        outState.putSerializable(Constants.ROUTE, route);
-        super.onSaveInstanceState(outState);
-    }
+    private void showKeyboard(boolean show) {
+        InputMethodManager inputManager = (InputMethodManager)getSystemService(Context
+                .INPUT_METHOD_SERVICE);
 
-    private void hideKeyboard() {
-        InputMethodManager inputManager = (InputMethodManager) this
-                .getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        // check if no view has focus:
-        View view = this.getCurrentFocus();
+        // Check if any view has focus.
+        View view = getCurrentFocus();
         if (view != null) {
-            inputManager.hideSoftInputFromWindow(view.getWindowToken(),
-                    InputMethodManager.HIDE_NOT_ALWAYS);
+            if (show) {
+                inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+                //inputManager.showSoftInputFromInputMethod(view.getWindowToken(),
+                //        InputMethodManager.SHOW_IMPLICIT);
+            } else {
+                inputManager.hideSoftInputFromWindow(view.getWindowToken(),
+                        InputMethodManager.HIDE_NOT_ALWAYS);
+            }
         }
     }
 
@@ -426,18 +455,20 @@ public class MainActivity extends ActionBarActivity {
         return fromIsValid && toIsValid && !namesEqual;
     }
 
-    public void computePaths() {
+    private boolean computePaths() {
         if (inputValid()) {
-            hideKeyboard();
+            showKeyboard(false);
             findViewById(R.id.progress_load_graph).setVisibility(View.VISIBLE);
             if (!GraphProvider.isInitialized()) {
                 // If the serialized wasn't already loaded from assets, do
                 // nothing and request to be called, once the graph is loaded.
                 requestComputation = true;
-                return;
+                return true;
             }
             new ComputePathsTask().execute();
+            return true;
         }
+        return false;
     }
 
     /**
@@ -526,9 +557,9 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
-            resetInstanceState();
             inputFrom.setEnabled(true);
             inputTo.setEnabled(true);
+            resetInstanceState();
             findViewById(R.id.progress_load_graph).setVisibility(View.GONE);
         }
     }
