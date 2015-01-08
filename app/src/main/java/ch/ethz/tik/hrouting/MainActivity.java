@@ -1,6 +1,7 @@
 package ch.ethz.tik.hrouting;
 
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.res.AssetManager;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -66,6 +67,8 @@ public class MainActivity extends ActionBarActivity {
     public static Context context = null;
     private HistoryDbHelper dbHelper;
 
+    private static AlertDialog alertFirstTime = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,9 +96,14 @@ public class MainActivity extends ActionBarActivity {
                             "in the area of Zurich (Switzerland). Check out the " +
                             "exemplary routes stored in the list below.")
                     .setCancelable(false)
-                    .setPositiveButton("OK", null);
-            AlertDialog alert = builder.create();
-            alert.show();
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            alertFirstTime = null;
+                        }
+                    });
+            alertFirstTime = builder.create();
+            alertFirstTime.show();
         }
 
         // Set background image.
@@ -115,6 +123,16 @@ public class MainActivity extends ActionBarActivity {
             inputFrom.clearFocus();
             inputTo.clearFocus();
         }
+        if(alertFirstTime != null)
+            alertFirstTime.dismiss();
+    }
+
+    @Override
+    protected void onResume() {
+        Log.i(TAG, "onResume");
+        super.onResume();
+        if(alertFirstTime != null)
+            alertFirstTime.show();
     }
 
     @Override
@@ -384,6 +402,7 @@ public class MainActivity extends ActionBarActivity {
 
         final ListView historyView = (ListView) findViewById(R.id.history);
         Cursor cursor = dbHelper.getHistory();
+        startManagingCursor(cursor);
         CustomCursorAdapter cursorAdapter = new CustomCursorAdapter(this,
                 cursor, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
         historyView.setAdapter(cursorAdapter);

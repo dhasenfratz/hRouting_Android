@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.NumberPicker;
+import android.widget.Toast;
 
 import ch.ethz.tik.hrouting.providers.HistoryDbHelper;
 import ch.ethz.tik.hrouting.util.HistoryDBContract.HistoryEntry;
@@ -60,6 +61,8 @@ public class NumberPickerPreference extends DialogPreference {
             setValue(picker.getValue());
             HistoryDbHelper dbHelper = new HistoryDbHelper(getContext());
             HistoryEntry.checkHistorySize(dbHelper, getContext());
+            Toast.makeText(getContext(), "History size adjusted",
+                    Toast.LENGTH_SHORT).show();
         }
     }
 

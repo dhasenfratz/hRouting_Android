@@ -58,7 +58,11 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     private void deleteHistory() {
-        alertDialog = createRemEntriesDialog();
+        alertDialog = new AlertDialog.Builder(getActivity())
+                .setTitle("Clear History")
+                .setMessage("Remove all entries from the history table?")
+                .setPositiveButton("Ok", dialogClickListener)
+                .setNegativeButton("Cancel", dialogClickListener).create();
         alertDialog.show();
     }
 
@@ -97,18 +101,7 @@ public class SettingsFragment extends PreferenceFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(alertDialog != null) {
-            alertDialog = createRemEntriesDialog();
+        if(alertDialog != null)
             alertDialog.show();
-        }
-    }
-
-    private AlertDialog createRemEntriesDialog() {
-        alertDialog = new AlertDialog.Builder(getActivity())
-                .setTitle("Clear History")
-                .setMessage("Remove all entries from the history table?")
-                .setPositiveButton("Ok", dialogClickListener)
-                .setNegativeButton("Cancel", dialogClickListener).create();
-        return alertDialog;
     }
 }
