@@ -1,3 +1,24 @@
+//
+//  Route.java
+//  hRouting
+//
+//  Created by David Hasenfratz on 08/01/15.
+//  Copyright (c) 2015 TIK, ETH Zurich. All rights reserved.
+//
+//  hRouting is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  hRouting is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with hRouting.  If not, see <http://www.gnu.org/licenses/>.
+//
+
 package ch.ethz.tik.graphgenerator.elements;
 
 import java.io.Serializable;
@@ -84,16 +105,6 @@ public class Route implements Serializable {
 
     public void setHOptPath(List<Node> path) {
         hOptPath = path;
-    }
-
-    public void setShortestPathScores(int poll, int dist) {
-        shortestPathScores[Constants.INDEX_POLLUTION] = poll;
-        shortestPathScores[Constants.INDEX_DISTANCE] = dist;
-    }
-
-    public void setHOptPathScores(int poll, int dist) {
-        hOptPathScores[Constants.INDEX_POLLUTION] = poll;
-        hOptPathScores[Constants.INDEX_DISTANCE] = dist;
     }
 
     public void setShortestPathScores(int[] scores) {

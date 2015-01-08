@@ -1,3 +1,24 @@
+//
+//  FullDijkstra.java
+//  hRouting
+//
+//  Created by David Hasenfratz on 08/01/15.
+//  Copyright (c) 2015 TIK, ETH Zurich. All rights reserved.
+//
+//  hRouting is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  hRouting is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with hRouting.  If not, see <http://www.gnu.org/licenses/>.
+//
+
 package ch.ethz.tik.graphgenerator.algorithms;
 
 import java.util.Arrays;
@@ -23,7 +44,7 @@ public class FullDijkstra implements IRoutingAlgorithm<Graph, Node> {
     private Integer[] previous = null;
     private int[] scanned;
 
-    private void init(Graph graph, Node source, Node target, boolean pollution) {
+    private void init(Graph graph, Node source, boolean pollution) {
         distance = new Integer[graph.getNrOfNodes()];
         previous = new Integer[graph.getNrOfNodes()];
         scanned = new int[graph.getNrOfNodes()];
@@ -58,7 +79,7 @@ public class FullDijkstra implements IRoutingAlgorithm<Graph, Node> {
     }
 
     private Comparator<Integer> getDistanceComparator() {
-        Comparator<Integer> distanceComparator = new Comparator<Integer>() {
+        return new Comparator<Integer>() {
             @Override
             public int compare(Integer lhs, Integer rhs) {
                 if (distance[lhs - 1] < distance[rhs - 1]) {
@@ -69,19 +90,18 @@ public class FullDijkstra implements IRoutingAlgorithm<Graph, Node> {
                 return 0;
             }
         };
-        return distanceComparator;
     }
 
     /**
      * Returns a Set containing all nodes that are unreachable from a certain node.
-     * @param graph
-     * @param source
-     * @return
+     * @param graph     the network graph
+     * @param source    source node to start search
+     * @return          set of unreachable nodes
      */
     public Set<Integer> getUnreachableNodes(Graph graph, Node source) {
         Set<Integer> unreachableNodes = Sets.newHashSet();
         source = graph.getClosestNodeTo(source);
-        init(graph, source, source, true);
+        init(graph, source, true);
         for (int i = 0; i < scanned.length; i++) {
             if(scanned[i] != 1) {
                 unreachableNodes.add(graph.getNode(i+1).getId());
@@ -99,7 +119,7 @@ public class FullDijkstra implements IRoutingAlgorithm<Graph, Node> {
         Preconditions.checkNotNull(closestTarget);
         Preconditions.checkArgument(closestSource.getId() != closestTarget
                 .getId());
-        init(graph, closestSource, closestTarget, pollution);
+        init(graph, closestSource, pollution);
         int u = closestTarget.getId();
         path.add(graph.getNode(u));
         // UNTESTED

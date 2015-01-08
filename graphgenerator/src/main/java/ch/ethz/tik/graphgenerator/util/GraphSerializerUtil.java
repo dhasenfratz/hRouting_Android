@@ -1,3 +1,24 @@
+//
+//  GraphSerializerUtil.java
+//  hRouting
+//
+//  Created by David Hasenfratz on 08/01/15.
+//  Copyright (c) 2015 TIK, ETH Zurich. All rights reserved.
+//
+//  hRouting is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  hRouting is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with hRouting.  If not, see <http://www.gnu.org/licenses/>.
+//
+
 package ch.ethz.tik.graphgenerator.util;
 
 import java.io.BufferedInputStream;
@@ -43,6 +64,7 @@ public class GraphSerializerUtil {
             res = baos.toByteArray();
 
         } catch (Exception ex) {
+            System.out.println("Error serializing object" + ex);
             throw ex;
         } finally {
             try {
@@ -54,13 +76,13 @@ public class GraphSerializerUtil {
         }
         return res;
     }
-
+    @SuppressWarnings("unused")
     public static Graph loadGraph(InputStream inputStream) {
         return deSerialize(new BufferedInputStream(inputStream));
     }
 
     public static Graph deSerialize(BufferedInputStream inputStream) {
-        Graph graph = null;
+        Graph graph;
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         int nRead;
         byte[] data = new byte[16384];
@@ -72,6 +94,7 @@ public class GraphSerializerUtil {
             graph = deSerialize(buffer.toByteArray(), Graph.class);
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
         Preconditions.checkNotNull(graph);
         return graph;
@@ -80,7 +103,7 @@ public class GraphSerializerUtil {
     public static Graph deSerialize(byte[] byteArray,
                                     Class<? extends Externalizable> clazz) {
         ObjectInputStream ois;
-        Graph graph = null;
+        Graph graph;
         try {
             ois = new ObjectInputStream(new ByteArrayInputStream(byteArray));
             graph = (Graph) clazz.newInstance();
@@ -89,6 +112,7 @@ public class GraphSerializerUtil {
         } catch (IOException | ClassNotFoundException | InstantiationException
                 | IllegalAccessException e) {
             e.printStackTrace();
+            return null;
         }
         Preconditions.checkNotNull(graph);
         return graph;

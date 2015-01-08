@@ -1,3 +1,24 @@
+//
+//  Graph.java
+//  hRouting
+//
+//  Created by David Hasenfratz on 08/01/15.
+//  Copyright (c) 2015 TIK, ETH Zurich. All rights reserved.
+//
+//  hRouting is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  hRouting is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with hRouting.  If not, see <http://www.gnu.org/licenses/>.
+//
+
 package ch.ethz.tik.graphgenerator.elements;
 
 import java.io.Externalizable;
@@ -90,6 +111,7 @@ public class Graph implements Externalizable {
      * with no adjacencies with an empty array.
      *
      * @param adjacencies
+     *            the adjacencies
      */
     private void initializeAdjacencies(Adjacency[][] adjacencies) {
         for (int i = 0; i < adjacencies.length; i++) {
@@ -153,7 +175,7 @@ public class Graph implements Externalizable {
      */
     private Node findNearestNode(Node current, Node search, int depth) {
         // Go down tree
-        int direction = 0;
+        int direction;
         if (depth % 2 == 0) {
             direction = Doubles.compare(search.latitude, current.latitude);
         } else {

@@ -1,3 +1,24 @@
+//
+//  GraphGenerator.java
+//  hRouting
+//
+//  Created by David Hasenfratz on 08/01/15.
+//  Copyright (c) 2015 TIK, ETH Zurich. All rights reserved.
+//
+//  hRouting is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  hRouting is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with hRouting.  If not, see <http://www.gnu.org/licenses/>.
+//
+
 package ch.ethz.tik.graphgenerator;
 
 import java.io.FileOutputStream;
@@ -28,9 +49,6 @@ public class GraphGenerator {
     private static final Node FULLY_CONNECTED_NODE = new Node(0,
             47.41967172599581, 8.584416169703587);
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
         Stopwatch stopwatch = Stopwatch.createStarted();
         Graph graph = generateGraph();
@@ -87,14 +105,6 @@ public class GraphGenerator {
                     healthiestNodes.size());
             System.out.println(nodeFrom + " - " + nodeTo + ": shortest route length " + shortestNodes.size());
 
-            // Compute scores
-            List<Integer> scoresH = Lists.newArrayList();
-            scoresH.add(0, graph.getScore(healthiestNodes, true));
-            scoresH.add(0, graph.getScore(healthiestNodes, false));
-            List<Integer> scoresS = Lists.newArrayList();
-            scoresH.add(0, graph.getScore(shortestNodes, true));
-            scoresH.add(0, graph.getScore(shortestNodes, false));
-
             Route route = new Route.Builder(nodeFrom, nodeTo)
                     .hOptPath(healthiestNodes)
                     .shortestPath(shortestNodes)
@@ -119,8 +129,7 @@ public class GraphGenerator {
     public static Graph generateGraph() {
         List<Node> nodes = CsvHelper.readNodes("graphgenerator/res/coordinates.csv");
         Adjacency[][] adjacencies = CsvHelper.readEdges("graphgenerator/res/edges.csv", nodes);
-        Graph graph = purgeUnreachableNodes(Graph.create(nodes, adjacencies));
-        return graph;
+        return purgeUnreachableNodes(Graph.create(nodes, adjacencies));
     }
 
     private static Graph purgeUnreachableNodes(Graph graph) {
