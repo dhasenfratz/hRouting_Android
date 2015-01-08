@@ -255,7 +255,7 @@ public class MainActivity extends ActionBarActivity {
         if (!isNetwork) {
             inputFrom.setError("No internet connection");
             inputTo.setError("No internet connection");
-            Toast.makeText(this, "No internet connection available.",
+            Toast.makeText(this, "No internet connection available",
                     Toast.LENGTH_LONG).show();
         } else {
             inputFrom.setError(null);
@@ -402,6 +402,7 @@ public class MainActivity extends ActionBarActivity {
 
         final ListView historyView = (ListView) findViewById(R.id.history);
         Cursor cursor = dbHelper.getHistory();
+        // TODO: Replace this with CursorLoader
         startManagingCursor(cursor);
         CustomCursorAdapter cursorAdapter = new CustomCursorAdapter(this,
                 cursor, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
@@ -482,6 +483,10 @@ public class MainActivity extends ActionBarActivity {
                 // If the serialized wasn't already loaded from assets, do
                 // nothing and request to be called, once the graph is loaded.
                 requestComputation = true;
+                // Deactivate input and wait for the graph to be loaded.
+                findViewById(R.id.progress_load_graph).setVisibility(View.VISIBLE);
+                inputFrom.setEnabled(false);
+                inputTo.setEnabled(false);
                 return true;
             }
             new ComputePathsTask().execute();

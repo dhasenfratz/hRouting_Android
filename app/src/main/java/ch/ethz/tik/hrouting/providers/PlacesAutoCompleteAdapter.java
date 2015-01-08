@@ -15,10 +15,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.Toast;
 
 import ch.ethz.tik.graphgenerator.elements.Node;
 import ch.ethz.tik.graphgenerator.elements.SearchNode;
@@ -69,8 +71,10 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<SearchNode>
                     resultList = autocomplete(constraint.toString());
 
                     // Assign the data to the FilterResults
-                    filterResults.values = resultList;
-                    filterResults.count = resultList.size();
+                    if (resultList != null) {
+                        filterResults.values = resultList;
+                        filterResults.count = resultList.size();
+                    }
                 }
                 return filterResults;
             }
@@ -96,6 +100,9 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<SearchNode>
                 .build();
 
         StringBuilder jsonResults = getJsonResults(TYPE_AUTOCOMPLETE, parameters);
+
+        if (jsonResults == null)
+            return null;
 
         try {
             // Create a JSON object hierarchy from the results
@@ -176,9 +183,22 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<SearchNode>
         } catch (MalformedURLException e) {
             Log.e(LOG_TAG, "Error processing Places API URL", e);
             e.printStackTrace();
+            return null;
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error connecting to Places API", e);
             e.printStackTrace();
+
+            // Autocomplete is running in a thread, create a handler to post
+            // message to the main thread
+            Handler mHandler = new Handler(getContext().getMainLooper());
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(getContext().getApplicationContext(), "Not able to reach Google Place API", Toast.LENGTH_LONG).show();
+                }
+            });
+
+            return null;
         } finally {
             if (connection != null) {
                 connection.disconnect();
