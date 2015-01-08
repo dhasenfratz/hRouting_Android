@@ -29,5 +29,3 @@ proguard/
 # Log Files
 *.log
 
-# Ingore files with original API keys
-*.apikey

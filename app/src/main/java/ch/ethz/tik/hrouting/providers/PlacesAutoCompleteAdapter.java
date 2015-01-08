@@ -1,3 +1,24 @@
+//
+//  PlacesAutoCompleteAdapter.java
+//  hRouting
+//
+//  Created by David Hasenfratz on 08/01/15.
+//  Copyright (c) 2015 TIK, ETH Zurich. All rights reserved.
+//
+//  hRouting is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  hRouting is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with hRouting.  If not, see <http://www.gnu.org/licenses/>.
+//
+
 package ch.ethz.tik.hrouting.providers;
 
 import java.io.IOException;
@@ -62,7 +83,7 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<SearchNode>
 
     @Override
     public Filter getFilter() {
-        Filter filter = new Filter() {
+        return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence constraint) {
                 FilterResults filterResults = new FilterResults();
@@ -89,7 +110,6 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<SearchNode>
                 }
             }
         };
-        return filter;
     }
 
     private ArrayList<SearchNode> autocomplete(String input) {
@@ -109,7 +129,7 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<SearchNode>
             JSONObject jsonObj = new JSONObject(jsonResults.toString());
             JSONArray predsJsonArray = jsonObj.getJSONArray("predictions");
             // Extract the Place descriptions from the results
-            resultList = new ArrayList<SearchNode>(predsJsonArray.length());
+            resultList = new ArrayList<>(predsJsonArray.length());
             for (int i = 0; i < predsJsonArray.length(); i++) {
                 String placeId = predsJsonArray.getJSONObject(i).getString("place_id");
 
@@ -211,7 +231,7 @@ public class PlacesAutoCompleteAdapter extends ArrayAdapter<SearchNode>
         StringBuilder query = new StringBuilder(PLACES_API_BASE + "/"
                 + requestType + OUT_JSON).append("?key=" + API_KEY);
         for (String parameter : parameters) {
-            query.append("&" + parameter);
+            query.append("&").append(parameter);
         }
         query.append("&language=de");
         return query.toString();
