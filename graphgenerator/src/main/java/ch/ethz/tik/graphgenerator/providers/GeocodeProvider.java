@@ -2,7 +2,7 @@
 //  GeocodeProvider.java
 //  hRouting
 //
-//  Created by David Hasenfratz on 08/01/15.
+//  Created by Ivo de Concini, David Hasenfratz on 08/01/15.
 //  Copyright (c) 2015 TIK, ETH Zurich. All rights reserved.
 //
 //  hRouting is free software: you can redistribute it and/or modify
