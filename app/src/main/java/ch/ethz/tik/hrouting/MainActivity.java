@@ -95,6 +95,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "onCreate");
         setContentView(R.layout.activity_main);
+        setTitle("Health-Optimal Route Planner");
 
         if (savedInstanceState != null) {
             restoreState(savedInstanceState);
