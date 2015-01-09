@@ -140,7 +140,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onPause() {
         Log.i(TAG, "onPause");
         super.onPause();
-        if (inputFrom.hasFocus() || inputTo.hasFocus()) {
+        if ((inputFrom != null && inputFrom.hasFocus()) ||
+                (inputTo != null && inputTo.hasFocus())) {
             showKeyboard(false);
             inputFrom.clearFocus();
             inputTo.clearFocus();
@@ -161,7 +162,8 @@ public class MainActivity extends ActionBarActivity {
     protected void onDestroy() {
         Log.i(TAG, "onDestroy");
         super.onDestroy();
-        dbHelper.close();
+        if (dbHelper != null)
+            dbHelper.close();
     }
 
     @Override
