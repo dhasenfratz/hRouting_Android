@@ -8,6 +8,8 @@ Using high-resolution air pollution maps, the app computes the shortest path bet
 Further, it provides information about the route lengths and the expected exposure reduction.
 Perfect for pedestrians, cyclists, and urban dwellers.
 
+Get the app for free in the Google Play Store: https://play.google.com/store/apps/details?id=ch.ethz.tik.hrouting
+
 <img src="/AppStorePics/welcome.png" alt="Welcome box" width="320" height="568" border="20" />
 <img src="/AppStorePics/myroute.png" alt="Route input" width="320" height="568" border="20" />
 <img src="/AppStorePics/map.png" alt="Routes" width="320" height="568" border="20" />
