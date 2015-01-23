@@ -33,10 +33,10 @@ import ch.ethz.tik.graphgenerator.elements.Graph;
 import ch.ethz.tik.graphgenerator.elements.Adjacency;
 import ch.ethz.tik.graphgenerator.elements.Route;
 import ch.ethz.tik.graphgenerator.elements.SearchNode;
+import ch.ethz.tik.graphgenerator.generator.UnreachableNodeProvider;
 import ch.ethz.tik.graphgenerator.providers.GeocodeProvider;
 import ch.ethz.tik.graphgenerator.providers.ShortestPathProvider;
 import ch.ethz.tik.graphgenerator.util.GraphSerializerUtil;
-import ch.ethz.tik.graphgenerator.algorithms.FullDijkstra;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Lists;
@@ -68,7 +68,7 @@ public class GraphGenerator {
         List<Route> exRoutes = Lists.newArrayList();
         SearchNode nodeFrom, nodeTo;
 
-        for(int i = 0; i < 7; ++i) {
+        for (int i = 0; i < 7; ++i) {
             if (i == 0) {
                 nodeFrom = GeocodeProvider.getGeocode("Wipkingen");
                 nodeTo = GeocodeProvider.getGeocode("Limmatplatz");
@@ -96,6 +96,8 @@ public class GraphGenerator {
                 System.out.println("Error getting location from the Google Geocoding");
                 return;
             }
+
+
 
             List<Node> healthiestNodes = ShortestPathProvider.between(graph, nodeTo,
                     nodeFrom, true);
@@ -133,8 +135,8 @@ public class GraphGenerator {
     }
 
     private static Graph purgeUnreachableNodes(Graph graph) {
-        Set<Integer> unreachable = new FullDijkstra().getUnreachableNodes(
-                graph, FULLY_CONNECTED_NODE);
+        Set<Integer> unreachable = UnreachableNodeProvider.getUnreachableNodeIds(graph, FULLY_CONNECTED_NODE);
+
         Map<Integer, Integer> oldToNew = Maps.newHashMap();
 
         int newId = 1;
