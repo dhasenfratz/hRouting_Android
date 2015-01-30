@@ -114,7 +114,7 @@ public abstract class AbstractDijkstra implements
     }
 
     protected void scanArc(int u, Adjacency v) {
-        if (!visited[target.getId()-1]) {
+        if (!visited[v.getTarget()-1]) {
             int edgeWeight = pollution ? v.getPollution() : v.getDistance();
             int dTroughU = potentials[u-1] + edgeWeight;
             if (dTroughU < potentials[v.getTarget()-1]) {
